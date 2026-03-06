@@ -2,6 +2,11 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT;
 
+// import del middelware di gestione errore interno 500
+const errorsHandler = require("./middlewares/errorsHandler");
+// import del middelware di gestione di rotta inesistente
+const notFound = require("./middlewares/notFound");
+
 //import middelware CORS
 const cors = require("cors");
 
