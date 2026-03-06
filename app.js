@@ -13,6 +13,14 @@ app.get('/api', (req, res) => {
     res.send("<h1>Questa sarà la HomePage della pagina</h1>")
 })
 
+
+//registriamo middelware di gestione err 500
+app.use(errorsHandler);
+
+//registriamo middelware di gestione rotta inesistente
+app.use(notFound);
+
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
