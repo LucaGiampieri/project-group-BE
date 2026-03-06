@@ -1,0 +1,16 @@
+{
+  "name": "project_group_e-commerce",
+  "version": "1.0.0",
+  "description": "Online shop for Italian agri-food products, with specialties from each region",
+  "repository": {
+    "type": "git",
+    "url": "projecy_group_e-commerce"
+  },
+  "license": "ISC",
+  "author": "Gruppo 1",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
