@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT;
 
+//import del router dei prodotti
+const productRouter = require('./routers/productRouter')
 //import del middelware di gestione errore interno 500
 const errorsHandler = require("./middlewares/errorsHandler");
 //import del middelware di gestione di rotta inesistente
@@ -19,6 +21,9 @@ app.use(express.static('public'));
 app.get('/api', (req, res) => {
     res.send("<h1>Questa sarà la HomePage della pagina</h1>")
 })
+
+//rotte relative al router dei prodotti
+app.use('/api/product', productRouter);
 
 //attivazione middelware di gestione path img
 app.use(imagePath);
