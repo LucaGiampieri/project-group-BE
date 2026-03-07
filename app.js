@@ -17,6 +17,11 @@ const imagePath = require('./middlewares/imagePath');
 //import middelware CORS
 const cors = require("cors");
 
+//attivazione CORS
+app.use(cors({
+    origin: "http://localhost:5173"
+}));
+
 //attivazione della cartella public per uso file statici
 app.use(express.static('public'));
 
