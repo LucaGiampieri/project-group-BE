@@ -1,8 +1,8 @@
 //importiamo la connessione del DB
 const connection = require('../data/db');
 
-//funzione di index
-function index(req, res) {
+//funzione di index per i prodotti
+function indexProducts(req, res) {
 
     //prepariamo la query
     const sql = 'SELECT * FROM products';
@@ -21,6 +21,29 @@ function index(req, res) {
         })
 
         res.json(products);
+    });
+}
+
+//funzione di index per le regioni
+function indexRegions(req, res) {
+
+    //prepariamo la query
+    const sql = 'SELECT * FROM regions';
+
+    //eseguiamo la query!
+    connection.query(sql, (err, results) => {
+        if (err)
+            return res.status(500).json({ error: 'Database query failed' });
+
+        //creo una copia dei risultati con modifica path imgs
+        const regions = results.map(region => {
+            return {
+                ...region,
+                image: req.imagePath + region.image
+            }
+        })
+
+        res.json(regions);
     });
 }
 
@@ -53,4 +76,4 @@ function show(req, res) {
 
 
 //export controller
-module.exports = { index, show }
+module.exports = { indexProducts, indexRegions, show }
