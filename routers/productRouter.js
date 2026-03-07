@@ -9,8 +9,8 @@ const productController = require("../controllers/productController");
 //rotta di index
 router.get('/', productController.index);
 
-// //rotta di show
-// router.get('/:id', productController);
+//rotta di show
+router.get('/:id', productController.show);
 
 
 

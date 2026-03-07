@@ -24,8 +24,33 @@ function index(req, res) {
     });
 }
 
+//funzione di show
+function show(req, res) {
+
+    //prendiamo l'id dalla route
+    const productId = req.params.id;
+
+    //prepariamo la query parametrizzata
+    const sql = 'SELECT * FROM products WHERE id = ?';
+
+    //eseguiamo la query
+    connection.query(sql, [productId], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        //creo una copia del prodotto con path immagine modificato
+        const product = {
+            ...results[0],
+            image: req.imagePath + results[0].image
+        };
+
+        res.json(product);
+    });
+}
 
 
 
 //export controller
-module.exports = { index }
+module.exports = { index, show }
