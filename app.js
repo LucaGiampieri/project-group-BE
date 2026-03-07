@@ -9,7 +9,7 @@ const errorsHandler = require("./middlewares/errorsHandler");
 //import del middelware di gestione di rotta inesistente
 const notFound = require("./middlewares/notFound");
 //import middelware di gestione path img
-const imagePath = require("./middlewares/imagePath")
+const imagePath = require('./middlewares/imagePath');
 
 //import middelware CORS
 const cors = require("cors");
@@ -23,10 +23,7 @@ app.get('/api', (req, res) => {
 })
 
 //rotte relative al router dei prodotti
-app.use('/api/product', productRouter);
-
-//attivazione middelware di gestione path img
-app.use(imagePath);
+app.use('/api/product', imagePath('product-images'), productRouter);
 
 //registriamo middelware di gestione err 500
 app.use(errorsHandler);
