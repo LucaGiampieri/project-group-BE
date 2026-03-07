@@ -3,13 +3,16 @@ const app = express();
 const port = process.env.PORT;
 
 //import del router dei prodotti
-const productRouter = require('./routers/productRouter')
+const productRouter = require('./routers/productRouter');
+//import del router delle regioni
+const regionRouter = require('./routers/regionRouter');
+
 //import del middelware di gestione errore interno 500
 const errorsHandler = require("./middlewares/errorsHandler");
 //import del middelware di gestione di rotta inesistente
 const notFound = require("./middlewares/notFound");
 //import middelware di gestione path img
-const imagePath = require("./middlewares/imagePath")
+const imagePath = require('./middlewares/imagePath');
 
 //import middelware CORS
 const cors = require("cors");
@@ -23,10 +26,10 @@ app.get('/api', (req, res) => {
 })
 
 //rotte relative al router dei prodotti
-app.use('/api/product', productRouter);
+app.use('/api/product', imagePath('product-images'), productRouter);
 
-//attivazione middelware di gestione path img
-app.use(imagePath);
+//rotte relative al router delle regioni
+app.use('/api/regions', imagePath('regions-images'), regionRouter);
 
 //registriamo middelware di gestione err 500
 app.use(errorsHandler);

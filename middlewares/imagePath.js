@@ -1,8 +1,9 @@
-function imagePath(req, res, next) {
-    //creo nuova proprietà da aggiungere a req per path img
-    req.imagePath = `${req.protocol}://${req.get('host')}/images/product-images/`;
-    //procedi con la risposta
-    next();
-};
+//middlewares/imagePath.js
+function imagePath(folder) {
+    return (req, res, next) => {
+        req.imagePath = `${req.protocol}://${req.get('host')}/images/${folder}/`;
+        next();
+    };
+}
 
 module.exports = imagePath;
