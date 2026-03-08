@@ -73,7 +73,32 @@ function show(req, res) {
     });
 }
 
+function showProductBySlug(req, res) {
+
+    //prendiamo lo slug dalla route
+    const productSlug = req.params.slug;
+
+    //prepariamo la query parametrizzata
+    const sql = 'SELECT * FROM products WHERE slug = ?';
+
+    //eseguiamo la query
+    connection.query(sql, [productSlug], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        //creo una copia del prodotto con path immagine modificato
+        const product = {
+            ...results[0],
+            image: req.imagePath + results[0].image
+        };
+
+        res.json(product);
+    });
+}
+
 
 
 //export controller
-module.exports = { indexProducts, indexRegions, show }
+module.exports = { indexProducts, indexRegions, show, showProductBySlug }

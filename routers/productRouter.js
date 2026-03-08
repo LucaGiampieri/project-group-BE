@@ -12,6 +12,8 @@ router.get('/', productController.indexProducts);
 //rotta di show
 router.get('/:id', productController.show);
 
+//rotta si show by slug
+router.get('/slug/:slug', productController.showProductBySlug);
 
 
 //export rotte
