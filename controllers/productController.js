@@ -48,7 +48,7 @@ function indexRegions(req, res) {
 }
 
 //funzione di show
-function show(req, res) {
+function showProductById(req, res) {
 
     //prendiamo l'id dalla route
     const productId = req.params.id;
@@ -101,4 +101,4 @@ function showProductBySlug(req, res) {
 
 
 //export controller
-module.exports = { indexProducts, indexRegions, show, showProductBySlug }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug }

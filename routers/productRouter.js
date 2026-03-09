@@ -10,7 +10,7 @@ const productController = require("../controllers/productController");
 router.get('/', productController.indexProducts);
 
 //rotta di show
-router.get('/:id', productController.show);
+router.get('/:id', productController.showProductById);
 
 //rotta si show by slug
 router.get('/slug/:slug', productController.showProductBySlug);
