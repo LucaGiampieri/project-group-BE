@@ -9,12 +9,12 @@ const productController = require("../controllers/productController");
 //rotta di index per prodotti
 router.get('/', productController.indexProducts);
 
-//rotta di show
-router.get('/:id', productController.showProductById);
-
 //rotta si show by slug
 router.get('/slug/:slug', productController.showProductBySlug);
 
+
+//rotta di show
+router.get('/:id', productController.showProductById);
 
 //export rotte
 module.exports = router;

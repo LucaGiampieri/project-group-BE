@@ -47,7 +47,7 @@ function indexRegions(req, res) {
     });
 }
 
-//funzione di show
+//funzione di show per id
 function showProductById(req, res) {
 
     //prendiamo l'id dalla route
@@ -73,6 +73,7 @@ function showProductById(req, res) {
     });
 }
 
+//funzione di show per slug
 function showProductBySlug(req, res) {
 
     //prendiamo lo slug dalla route
@@ -98,7 +99,29 @@ function showProductBySlug(req, res) {
     });
 }
 
+//funzione di show per regione
+function showProductsByRegionName(req, res) {
+    const regionName = req.params.name;
+
+    const sql = `
+        SELECT products.*
+        FROM products 
+        JOIN regions  ON products.region_id = regions.id
+        WHERE LOWER(regions.name) = LOWER(?)
+    `;
+
+    connection.query(sql, [regionName], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+
+        const products = results.map(product => ({
+            ...product,
+            image: req.imagePath + product.image
+        }));
+
+        res.json(products);
+    });
+}
 
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, showProductsByRegionName }
