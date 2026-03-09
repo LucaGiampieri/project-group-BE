@@ -101,8 +101,11 @@ function showProductBySlug(req, res) {
 
 //funzione di show per regione
 function showProductsByRegionName(req, res) {
+
+    //prendiamo il nome dalla regione
     const regionName = req.params.name;
 
+    //prepariamo la query parametrizzata
     const sql = `
         SELECT products.*
         FROM products 
@@ -110,9 +113,12 @@ function showProductsByRegionName(req, res) {
         WHERE LOWER(regions.name) = LOWER(?)
     `;
 
+    //eseguiamo la query
     connection.query(sql, [regionName], (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
 
+
+        //creo una copia del prodotto con path immagine modificato
         const products = results.map(product => ({
             ...product,
             image: req.imagePath + product.image
