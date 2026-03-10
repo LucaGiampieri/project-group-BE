@@ -31,7 +31,7 @@ app.get('/api', (req, res) => {
 })
 
 //rotte relative al router dei prodotti
-app.use('/api/product', imagePath('product-images'), productRouter);
+app.use('/api/products', imagePath('product-images'), productRouter);
 
 //rotte relative al router delle regioni
 app.use('/api/regions', imagePath('regions-images'), regionRouter);

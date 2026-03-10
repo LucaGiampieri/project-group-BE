@@ -3,27 +3,51 @@ const connection = require('../data/db');
 
 //funzione di index per i prodotti
 function indexProducts(req, res) {
+   //leggoil parametro di ricerca passato nella query string
+    const search = req.query.search;
 
-    //prepariamo la query
-    const sql = 'SELECT * FROM products';
+    let sql; //varaibile per memorizare la query che deve cambiare dinamicamente 
 
-    //eseguiamo la query!
-    connection.query(sql, (err, results) => {
-        if (err)
-            return res.status(500).json({ error: 'Database query failed' });
+    if (search) {
+        //se search esiste eseguo la logica di ricerca prodotto
+        const searchPattern = `%${search}%`; //creo un pattern che nel preaprare la query di ricerca con LIKE mi restituisce aad esempio '%vino%'
 
-        //creo una copia dei risultati con modifica path imgs
-        const products = results.map(product => {
-            return {
+        //preparo query parametrizzata
+        sql = 'SELECT * FROM products WHERE name LIKE ?';
+
+        // eseguo la query passando il parametro parametrizzato [searchPattern]
+        connection.query(sql, [searchPattern], (err, results) => {
+            if (err) 
+                return res.status(500).json({ error: 'Database query failed' }); // errore database
+
+            //modifica il path delle immagini per ogni prodotto
+            const products = results.map(product => ({
                 ...product,
                 image: req.imagePath + product.image
-            }
-        })
+            }));
 
-        res.json(products);
-    });
+            //restituisco il json dei prodotti cercati/filtrati
+            res.json(products);
+        });
+    } else {
+        //se search non esiste...
+        sql = 'SELECT * FROM products'; //preparo la query che mi restitusce tutti iprodotti
+
+        connection.query(sql, (err, results) => {
+            if (err) 
+                return res.status(500).json({ error: 'Database query failed' }); // errore database
+
+            //modifica il path delle immagini per ogni prodotto
+            const products = results.map(product => ({
+                ...product,
+                image: req.imagePath + product.image
+            }));
+
+            //restituisco jsn di tutti i prodotti
+            res.json(products);
+        });
+    }
 }
-
 //funzione di index per le regioni
 function indexRegions(req, res) {
 
