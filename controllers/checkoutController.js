@@ -3,7 +3,7 @@ const connection = require("../data/db");
 
 //funzione per creare un ordine e procedere al checkout
 function createOrder(req, res) {
-    //recupero le info dal body della req
+    //recupero le info dal body della req e destrutturo
     const { name, surname, email, phone, street, city, province, postal_code, region, country } = req.body
     //preparo la query parametrizata per inserire i dati nella tabella shipping_data
     const shippingSql = "INSERT INTO shipping_datas (name, surname, email, phone, street, city, province, postal_code, region, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -26,14 +26,14 @@ function createOrder(req, res) {
         //eseguo la query 
         connection.query(orderSql, [shippingId, billingId, totalAmount, shippingPrice, applidedDiscountCode, discountAmount], (errOrder, resOrder) => {
             if (errOrder) {
-                console.log("errore tabella order", errOrder.message);
+                console.log("errore tabella order", errOrder.message); //checke errore su vsc
                 return res.status(500).json({ error: " errore creazione ordine" });
             }
 
             res.status(201).json({
                 message: "shipping_datas e orders creati corrrettamente",
                 orderId: resOrder.insertId,
-                order_of_shipping: shippingId
+                shippinId_dellOrdine_creato: shippingId
             })
         })
     });
