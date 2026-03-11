@@ -5,7 +5,7 @@ const productController = require('../controllers/productController');
 //rotta di index per regioni
 router.get('/', productController.indexRegions);
 
-//rotta di show per regione
+//rotta di show per regioni
 router.get("/name/:name/products", productController.showProductsByRegionName);
 
 module.exports = router;
