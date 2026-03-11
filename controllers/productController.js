@@ -98,7 +98,35 @@ function showProductBySlug(req, res) {
     });
 }
 
+//Funzione prodotti favoriti 
+
+function getFavorites(req, res) {
+
+    const sql = `
+        SELECT * 
+        FROM products
+        WHERE favorites = 1
+        ORDER BY RAND()
+        LIMIT 6
+    `;
+
+    connection.query(sql, (err, results) => {
+
+        if (err)
+            return res.status(500).json({ error: 'Database query failed' });
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            }
+        });
+
+        res.json(products);
+    });
+}
+
 
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites }
