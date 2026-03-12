@@ -102,8 +102,9 @@ function showProductBySlug(req, res) {
 
 function getFavorites(req, res) {
 
+
     const sql = `
-        SELECT * 
+        SELECT *
         FROM products
         WHERE favorites = 1
         ORDER BY RAND()
@@ -111,15 +112,97 @@ function getFavorites(req, res) {
     `;
 
     connection.query(sql, (err, results) => {
-
-        if (err)
+        if (err) {
             return res.status(500).json({ error: 'Database query failed' });
+        }
 
         const products = results.map(product => {
             return {
                 ...product,
                 image: req.imagePath + product.image
-            }
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// funzione tavola degli oli 
+
+function getOils(req, res) {
+
+    const sql = `
+        SELECT *
+        FROM products
+        WHERE category_id = 23
+        ORDER BY RAND()
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// Funzione prodottti random 
+
+function getRandomProducts(req, res) {
+
+    const sql = `
+        SELECT *
+        FROM products
+        ORDER BY RAND()
+        LIMIT 12
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// funzione per prodotti regione
+function getProductsByRegionName(req, res) {
+
+    const regionName = req.params.name;
+
+    const sql = `
+        SELECT products.*
+        FROM products
+        JOIN regions ON products.region_id = regions.id
+        WHERE regions.name = ?
+    `;
+
+    connection.query(sql, [regionName], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: `http://localhost:3000/images/product-images/${product.image}`
+            };
         });
 
         res.json(products);
@@ -127,6 +210,5 @@ function getFavorites(req, res) {
 }
 
 
-
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites, getOils, getRandomProducts, getProductsByRegionName }
