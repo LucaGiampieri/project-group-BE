@@ -3,7 +3,7 @@ const connection = require('../data/db');
 
 //funzione di index per i prodotti
 function indexProducts(req, res) {
-   //leggoil parametro di ricerca passato nella query string
+    //leggo il parametro di ricerca passato nella query string
     const search = req.query.search;
 
     let sql; //varaibile per memorizare la query che deve cambiare dinamicamente 
@@ -17,7 +17,7 @@ function indexProducts(req, res) {
 
         // eseguo la query passando il parametro parametrizzato [searchPattern]
         connection.query(sql, [searchPattern], (err, results) => {
-            if (err) 
+            if (err)
                 return res.status(500).json({ error: 'Database query failed' }); // errore database
 
             //modifica il path delle immagini per ogni prodotto
@@ -27,14 +27,18 @@ function indexProducts(req, res) {
             }));
 
             //restituisco il json dei prodotti cercati/filtrati
-            res.json(products);
+            res.json({
+                totals: products.length,
+                results: products,
+            }
+            );
         });
     } else {
         //se search non esiste...
         sql = 'SELECT * FROM products'; //preparo la query che mi restitusce tutti iprodotti
 
         connection.query(sql, (err, results) => {
-            if (err) 
+            if (err)
                 return res.status(500).json({ error: 'Database query failed' }); // errore database
 
             //modifica il path delle immagini per ogni prodotto
