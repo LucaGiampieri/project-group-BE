@@ -3,7 +3,7 @@ const connection = require('../data/db');
 
 //funzione di index per i prodotti
 function indexProducts(req, res) {
-   //leggoil parametro di ricerca passato nella query string
+    //leggoil parametro di ricerca passato nella query string
     const search = req.query.search;
 
     let sql; //varaibile per memorizare la query che deve cambiare dinamicamente 
@@ -17,7 +17,7 @@ function indexProducts(req, res) {
 
         // eseguo la query passando il parametro parametrizzato [searchPattern]
         connection.query(sql, [searchPattern], (err, results) => {
-            if (err) 
+            if (err)
                 return res.status(500).json({ error: 'Database query failed' }); // errore database
 
             //modifica il path delle immagini per ogni prodotto
@@ -34,7 +34,7 @@ function indexProducts(req, res) {
         sql = 'SELECT * FROM products'; //preparo la query che mi restitusce tutti iprodotti
 
         connection.query(sql, (err, results) => {
-            if (err) 
+            if (err)
                 return res.status(500).json({ error: 'Database query failed' }); // errore database
 
             //modifica il path delle immagini per ogni prodotto
@@ -123,30 +123,112 @@ function showProductBySlug(req, res) {
     });
 }
 
-//funzione di show per regione
-function showProductsByRegionName(req, res) {
+//Funzione prodotti favoriti 
 
-    //prendiamo il nome dalla regione
-    const regionName = req.params.name;
+function getFavorites(req, res) {
 
-    //prepariamo la query parametrizzata
+
     const sql = `
-        SELECT products.*
-        FROM products 
-        JOIN regions  ON products.region_id = regions.id
-        WHERE LOWER(regions.name) = LOWER(?)
+        SELECT *
+        FROM products
+        WHERE favorites = 1
+        ORDER BY RAND()
+        LIMIT 6
     `;
 
-    //eseguiamo la query
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// funzione tavola degli oli 
+
+function getOils(req, res) {
+
+    const sql = `
+        SELECT *
+        FROM products
+        WHERE category_id = 23
+        ORDER BY RAND()
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// Funzione prodottti random 
+
+function getRandomProducts(req, res) {
+
+    const sql = `
+        SELECT *
+        FROM products
+        ORDER BY RAND()
+        LIMIT 12
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: req.imagePath + product.image
+            };
+        });
+
+        res.json(products);
+    });
+}
+
+// funzione per prodotti regione
+function getProductsByRegionName(req, res) {
+
+    const regionName = req.params.name;
+
+    const sql = `
+        SELECT products.*
+        FROM products
+        JOIN regions ON products.region_id = regions.id
+        WHERE regions.name = ?
+    `;
+
     connection.query(sql, [regionName], (err, results) => {
-        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (err) {
+            return res.status(500).json({ error: 'Database query failed' });
+        }
 
-
-        //creo una copia del prodotto con path immagine modificato
-        const products = results.map(product => ({
-            ...product,
-            image: req.imagePath + product.image
-        }));
+        const products = results.map(product => {
+            return {
+                ...product,
+                image: `http://localhost:3000/images/product-images/${product.image}`
+            };
+        });
 
         res.json(products);
     });
@@ -154,4 +236,4 @@ function showProductsByRegionName(req, res) {
 
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, showProductsByRegionName }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites, getOils, getRandomProducts, getProductsByRegionName }
