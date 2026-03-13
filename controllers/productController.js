@@ -4,36 +4,55 @@ const connection = require('../data/db');
 //funzione di index per i prodotti
 function indexProducts(req, res) {
     //leggo il parametro di ricerca passato nella query string
-    const search = req.query.search;
+    const { search, category, region } = req.query;
+    //preparo la query con la join per le categorie where 1=1 per aggiungere gli and a cascata
+    let sql = `
+        SELECT products.*, 
+        categories.name AS nomi_categorie,
+        regions.name AS nomi_regioni
+        FROM products
+        JOIN categories ON products.category_id = categories.id
+        JOIN regions ON products.region_id = regions.id
+        WHERE 1=1
+    `;
+    const params = [] //array vuoto dove a cascata verrano inserito cio che mi serve per preparare la query parametrizzata
 
-    let sql; //varaibile per memorizare la query che deve cambiare dinamicamente 
+    if (search) { //aggiungo filtro search se esiste
 
-    if (search) {
-        //se search esiste eseguo la logica di ricerca prodotto
-        const searchPattern = `%${search}%`; //creo un pattern che nel preaprare la query di ricerca con LIKE mi restituisce aad esempio '%vino%'
+        //preparo query parametrizzata e pusho cio che viene cercato come ... per evitare sql injectio
+        sql += ' AND products.name LIKE ?';
+        params.push(`%${search}%`);
+    }
 
-        //preparo query parametrizzata
-        sql = 'SELECT * FROM products WHERE name LIKE ?';
+    if (category) {//aggiungo filtro categoria se esiste
+        sql += " AND categories.name = ?";
+        params.push(category);
+    }
+    
+    if (region) {//aggiungo filtro regione se esiste
+        sql += " AND regions.name = ?";
+        params.push(region)
+    }
 
-        // eseguo la query passando il parametro parametrizzato [searchPattern]
-        connection.query(sql, [searchPattern], (err, results) => {
-            if (err)
-                return res.status(500).json({ error: 'Database query failed' }); // errore database
+    // eseguo unica query passando il array parametrizzato params
+    connection.query(sql, params, (err, results) => {
+        if (err)
+            return res.status(500).json({ error: 'Database query failed' }); // errore database
 
-            //modifica il path delle immagini per ogni prodotto
-            const products = results.map(product => ({
-                ...product,
-                image: req.imagePath + product.image
-            }));
+        //modifica il path delle immagini per ogni prodotto
+        const products = results.map(product => ({
+            ...product,
+            image: req.imagePath + product.image
+        }));
 
-            //restituisco il json dei prodotti cercati/filtrati
-            res.json({
-                totals: products.length,
-                results: products,
-            }
-            );
-        });
-    } else {
+        //restituisco il json dei prodotti cercati/filtrati
+        res.json({
+            totals: products.length,
+            results: products,
+        }
+        );
+    });
+    /*} else {
         //se search non esiste...
         sql = 'SELECT * FROM products'; //preparo la query che mi restitusce tutti iprodotti
 
@@ -50,7 +69,7 @@ function indexProducts(req, res) {
             //restituisco jsn di tutti i prodotti
             res.json(products);
         });
-    }
+    }*/
 }
 //funzione di index per le regioni
 function indexRegions(req, res) {
@@ -156,6 +175,16 @@ function showProductsByRegionName(req, res) {
     });
 }
 
+//funzione di index per le categorie
+function indexCategories(req, res) {
+    //preparo la query
+    const sql = 'select * from categories'
+    //eseguo la query
+    connection.query(sql, (err, results) => {
+        if(err) return res.status(500).json({ error: 'Database query failed' })
+            res.json(results)
+    });
+}
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, showProductsByRegionName }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, showProductsByRegionName, indexCategories }
