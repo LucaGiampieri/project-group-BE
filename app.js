@@ -7,7 +7,9 @@ const productRouter = require('./routers/productRouter');
 //import del router delle regioni
 const regionRouter = require('./routers/regionRouter');
 //import router checkout
-const checkoutRouter = require('./routers/checkoutRouter')
+const checkoutRouter = require('./routers/checkoutRouter');
+//import order router
+const orderRouter = require('./routers/orderRouter');
 
 //import del middelware di gestione errore interno 500
 const errorsHandler = require("./middlewares/errorsHandler");
@@ -41,6 +43,9 @@ app.use('/api/regions', imagePath('regions-images'), regionRouter);
 
 //rotta relativa al checkout
 app.use('/api/checkout', checkoutRouter);
+
+//rotta relativa al checkout orders
+app.use("/api/orders", orderRouter);
 
 //registriamo middelware di gestione err 500
 app.use(errorsHandler);

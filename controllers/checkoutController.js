@@ -26,7 +26,8 @@ function createOrder(req, res) {
         //eseguo la query 
         connection.query(orderSql, [shippingId, billingId, totalAmount, shippingPrice, applidedDiscountCode, discountAmount], (errOrder, resOrder) => {
             if (errOrder) {
-                console.log("errore tabella order", errOrder.message); //checke errore su vsc
+                //checke errore su vsc
+                console.log("errore tabella order", errOrder.message);
                 return res.status(500).json({ error: " errore creazione ordine" });
             }
 
