@@ -12,7 +12,6 @@ router.get('/', productController.indexProducts);
 //rotta si show by slug
 router.get('/slug/:slug', productController.showProductBySlug);
 
-
 //rotta di show
 router.get('/:id', productController.showProductById);
 
