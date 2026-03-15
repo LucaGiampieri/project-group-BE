@@ -234,6 +234,52 @@ function getProductsByRegionName(req, res) {
     });
 }
 
+//funzione rotta prodotti correlati
+function relatedProducts(req, res) {
+
+    //estraiamo l'id del prodotto dalla URL
+    const { id } = req.params;
+
+
+    //query SQL per recuperare i prodotti correlati
+    const sql = `
+        SELECT DISTINCT p2.*
+        FROM products p1
+        JOIN products p2
+        ON (
+            p1.category_id = p2.category_id
+            OR
+            p1.region_id = p2.region_id
+        )
+        WHERE p1.id = ?
+        AND p2.id != ?
+        ORDER BY RAND()
+        LIMIT 4
+    `;
+
+    //eseguiamo la query
+    connection.query(sql, [id, id], (err, results) => {
+
+        //gestione errore database
+        if (err) {
+            return res.status(500).json({
+                error: "Errore nel recupero dei prodotti correlati"
+            });
+        }
+
+        // aggiungi l'immagine completa
+        const data = results.map(p => ({
+            ...p,
+            image: req.imagePath + p.image
+        }));
+
+        //restituiamo i risultati in formato JSON
+        res.json(data);
+
+    });
+
+}
+
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites, getOils, getRandomProducts, getProductsByRegionName }
+module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites, getOils, getRandomProducts, getProductsByRegionName, relatedProducts }

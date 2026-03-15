@@ -10,11 +10,15 @@ const regionRouter = require('./routers/regionRouter');
 const checkoutRouter = require('./routers/checkoutRouter');
 //import order router
 const orderRouter = require('./routers/orderRouter');
+//import rotte discount
+const discountRoutes = require("./routers/discountRouter");
+//import rotta di shipping
+const shippingRouter = require("./routers/shippingRouter");
 
-//import del middelware di gestione errore interno 500
-const errorsHandler = require("./middlewares/errorsHandler");
 //import del middelware di gestione di rotta inesistente
 const notFound = require("./middlewares/notFound");
+//import del middelware di gestione errore interno 500
+const errorsHandler = require("./middlewares/errorsHandler");
 //import middelware di gestione path img
 const imagePath = require('./middlewares/imagePath');
 
@@ -46,6 +50,12 @@ app.use('/api/checkout', checkoutRouter);
 
 //rotta relativa al checkout orders
 app.use("/api/orders", orderRouter);
+
+//utilizzo rotte di discount
+app.use("/api/discounts", discountRoutes);
+
+//rotta per lo shipping
+app.use("/api/orders", shippingRouter);
 
 //registriamo middelware di gestione err 500
 app.use(errorsHandler);

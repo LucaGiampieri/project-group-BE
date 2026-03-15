@@ -18,15 +18,14 @@ router.get("/oils", productController.getOils);
 // rotta prodotti random
 router.get('/random', productController.getRandomProducts);
 
-
 //rotta si show by slug
 router.get('/slug/:slug', productController.showProductBySlug);
 
 //rotta di show
 router.get('/:id', productController.showProductById);
 
-//rotta di show
-router.get('/:id', productController.showProductById);
+//rotta per ottenere i prodotti correlati
+router.get("/:id/related", productController.relatedProducts);
 
 //export rotte
 module.exports = router;
