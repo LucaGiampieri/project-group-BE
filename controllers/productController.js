@@ -28,7 +28,7 @@ function indexProducts(req, res) {
         sql += " AND categories.name = ?";
         params.push(category);
     }
-    
+
     if (region) {//aggiungo filtro regione se esiste
         sql += " AND regions.name = ?";
         params.push(region)
@@ -303,19 +303,27 @@ function relatedProducts(req, res) {
 
 }
 
-
-//export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, getFavorites, getOils, getRandomProducts, getProductsByRegionName, relatedProducts }
 //funzione di index per le categorie
 function indexCategories(req, res) {
     //preparo la query
     const sql = 'select * from categories'
     //eseguo la query
     connection.query(sql, (err, results) => {
-        if(err) return res.status(500).json({ error: 'Database query failed' })
-            res.json(results)
+        if (err) return res.status(500).json({ error: 'Database query failed' })
+        res.json(results)
     });
 }
 
 //export controller
-module.exports = { indexProducts, indexRegions, showProductById, showProductBySlug, showProductsByRegionName, indexCategories }
+module.exports = {
+    indexProducts,
+    indexRegions,
+    showProductById,
+    showProductBySlug,
+    getProductsByRegionName,
+    getFavorites,
+    getOils,
+    getRandomProducts,
+    relatedProducts,
+    indexCategories
+};
