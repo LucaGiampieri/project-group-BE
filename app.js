@@ -14,6 +14,8 @@ const orderRouter = require('./routers/orderRouter');
 const discountRoutes = require("./routers/discountRouter");
 //import rotta di shipping
 const shippingRouter = require("./routers/shippingRouter");
+//import rotta wishlist
+const wishlistRoutes = require('./routers/wishlistRouter');
 
 //import del middelware di gestione di rotta inesistente
 const notFound = require("./middlewares/notFound");
@@ -54,8 +56,11 @@ app.use("/api/orders", orderRouter);
 //utilizzo rotte di discount
 app.use("/api/discounts", discountRoutes);
 
-//rotta per lo shipping
+//utilizzo rotte per lo shipping
 app.use("/api/orders", shippingRouter);
+
+//utilizzo rotte per wishlist
+app.use('/wishlist', wishlistRoutes);
 
 //registriamo middelware di gestione err 500
 app.use(errorsHandler);
