@@ -17,8 +17,12 @@ router.get("/oils", productController.getOils);
 
 // rotta prodotti random
 router.get('/random', productController.getRandomProducts);
+
 //rotta index categorie
 router.get('/categories', productController.indexCategories)
+
+//rotta per ottenere solo prodotti scontati
+router.get('/discounted', productController.getDiscountedProducts);
 
 //rotta si show by slug
 router.get('/slug/:slug', productController.showProductBySlug);
