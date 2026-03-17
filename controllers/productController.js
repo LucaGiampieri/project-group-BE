@@ -40,7 +40,7 @@ function baseProductSelect() {
 function indexProducts(req, res) {
 
     // Prendiamo i parametri dalla query string
-    const { search, category, region } = req.query;
+    const { search, category, region, sort } = req.query;
 
     // Query principale che recupera prodotti con join su categorie e regioni
     let sql = `
@@ -85,6 +85,31 @@ function indexProducts(req, res) {
     if (region) {
         sql += ' AND regions.name = ?';
         params.push(region);
+    }
+
+    // gestione ordinamento
+    if (sort) {
+        switch (sort) {
+
+            case "name_asc":
+                sql += " ORDER BY products.name ASC";
+                break;
+
+            case "name_desc":
+                sql += " ORDER BY products.name DESC";
+                break;
+
+            case "price_asc":
+                sql += " ORDER BY final_price ASC";
+                break;
+
+            case "price_desc":
+                sql += " ORDER BY final_price DESC";
+                break;
+
+            default:
+                break;
+        }
     }
 
     connection.query(sql, params, (err, results) => {
@@ -337,16 +362,45 @@ function indexCategories(req, res) {
 
 // Restituisce solo prodotti scontati (discount_percentage > 0)
 function getDiscountedProducts(req, res) {
-    const sql = `
+
+    const { sort } = req.query;
+
+    let sql = `
         ${baseProductSelect()}
         WHERE COALESCE(s.discount_percentage, 0) > 0
-        ORDER BY RAND()
     `;
+
+    // gestione ordinamento
+    if (sort) {
+        switch (sort) {
+
+            case "name_asc":
+                sql += " ORDER BY products.name ASC";
+                break;
+
+            case "name_desc":
+                sql += " ORDER BY products.name DESC";
+                break;
+
+            case "price_asc":
+                sql += " ORDER BY final_price ASC";
+                break;
+
+            case "price_desc":
+                sql += " ORDER BY final_price DESC";
+                break;
+
+            default:
+                sql += " ORDER BY RAND()";
+                break;
+        }
+    } else {
+        sql += " ORDER BY RAND()";
+    }
 
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
 
-        // aggiungiamo percorso immagine completo e flag is_on_sale
         const products = results.map(product => ({
             ...product,
             image: req.imagePath + product.image,
