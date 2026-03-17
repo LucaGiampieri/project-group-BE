@@ -48,16 +48,19 @@ app.use('/api/products', imagePath('product-images'), productRouter);
 app.use('/api/regions', imagePath('regions-images'), regionRouter);
 
 //rotta relativa al checkout
-app.use('/api/checkout', checkoutRouter);
+//app.use('/api/checkout', checkoutRouter);
 
 //rotta relativa al checkout orders
 app.use("/api/orders", orderRouter);
+
+//rotta relativa al checkout orders
+app.use("/api/orders", checkoutRouter);
 
 //utilizzo rotte di discount
 app.use("/api/discounts", discountRoutes);
 
 //utilizzo rotte per lo shipping
-app.use("/api/orders", shippingRouter);
+app.use("/api/shipping", shippingRouter);
 
 //utilizzo rotte per wishlist
 app.use('/wishlist', wishlistRoutes);
