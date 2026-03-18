@@ -110,6 +110,8 @@ function indexProducts(req, res) {
             default:
                 break;
         }
+    } else {
+        sql += " ORDER BY RAND()";
     }
 
     connection.query(sql, params, (err, results) => {
