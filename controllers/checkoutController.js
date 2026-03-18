@@ -1,6 +1,18 @@
 //mi connetto al db
 const connection = require("../data/db");
 
+const nodemailer = require("nodemailer");
+
+// configuriamo il trasportatore per Mailtrap
+const transporter = nodemailer.createTransport({
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+        user: "5f702556730e37",
+        pass: "49f04e642dcfe0"
+    }
+});
+
 //funzione per creare un ordine e procedere al checkout
 function createOrder(req, res) {
     //recupero le info dal body della req e destrutturo

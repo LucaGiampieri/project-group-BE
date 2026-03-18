@@ -1,6 +1,56 @@
 //importiamo la connessione del DB
 const connection = require('../data/db');
 
+const nodemailer = require("nodemailer");
+
+// configuriamo il trasportatore per Mailtrap
+const transporter = nodemailer.createTransport({
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+        user: "5f702556730e37",
+        pass: "49f04e642dcfe0"
+    }
+});
+
+// funzione generica per invio email
+function sendEmail(to, subject, html) {
+    return transporter.sendMail({
+        from: '"Ecommerce Test" <test@example.com>',
+        to,
+        subject,
+        html
+    });
+}
+
+// funzione per inviare entrambe le email (cliente + admin) con delay per l'admin
+function sendOrderEmails(orderId, totalAmount, products, shippingData) {
+    // invio email cliente
+    sendEmail(shippingData.email, "Conferma ordine", `
+        <h1>Grazie ${shippingData.name}</h1>
+        <p>Ordine #${orderId}</p>
+        <p>Totale: €${totalAmount}</p>
+        <p>Prodotti: ${products.length}</p>
+    `)
+        .then(() => {
+            console.log("Email cliente inviata");
+
+            // invio email admin dopo 1 secondo
+            setTimeout(() => {
+                sendEmail("5f702556730e37@sandbox.mailtrap.io", "Nuovo ordine ricevuto", `
+                <h1>Nuovo ordine</h1>
+                <p>ID: ${orderId}</p>
+                <p>Cliente: ${shippingData.email}</p>
+                <p>Totale: €${totalAmount}</p>
+            `)
+                    .then(() => console.log("Email admin inviata"))
+                    .catch(err => console.log("Errore email admin:", err));
+            }, 20000);
+
+        })
+        .catch(err => console.log("Errore email cliente:", err));
+}
+
 function checkout(req, res) {
 
     //prendiamo dal body della richiesta i dati necessari al checkout
@@ -66,47 +116,43 @@ function checkout(req, res) {
                     const billingId = billingResult.insertId;
 
                     //gestione sconto
-                    //valore sconto di default
                     let discountAmount = 0;
-
-                    //id codice sconto di default
                     let discountId = null; // ora possiamo usare null se la colonna lo permette
 
                     //creiamo una funzione per creare l'ordine e associare i prodotti
                     const createOrder = () => {
 
-                        //calcolo totale prodotti (price * quantity)
-                        const totalProducts = (products || []).reduce((sum, p) => sum + p.price * p.quantity, 0);
+                        const totalProducts = (products || []).reduce(
+                            (sum, p) => sum + p.price * p.quantity,
+                            0
+                        );
 
-                        //calcolo totale ordine = prodotti + spedizione - sconto
+                        if (discountId) {
+                            discountAmount = totalProducts * (discountAmount / 100);
+                        }
+
                         const totalAmount = totalProducts + shipping_price - discountAmount;
 
-                        //creiamo una variabile per l'inserimento ordine nella tabella orders
                         const orderSql = `
                     INSERT INTO orders
                     (shipping_data_id,billing_data_id,total_amount,order_date,shipping_price,applided_discount_code,discount_amount)
                     VALUES (?,?,?,?,?,?,?)
                 `;
 
-                        //se la colonna permette NULL, passa null se non c'è codice sconto
                         connection.query(orderSql, [
                             shippingId,
                             billingId,
                             totalAmount,
                             new Date(),
                             shipping_price,
-                            discountId, // null se nessuno sconto
+                            discountId,
                             discountAmount
                         ], (err, orderResult) => {
 
-                            //errore DB ordine
                             if (err) return res.status(500).json(err);
 
-                            //salviamo id ordine
                             const orderId = orderResult.insertId;
 
-                            //inserimento prodotti associati all'ordine
-                            //prepariamo array [[orderId, productId, price, quantity], ...]
                             const orderProducts = products.map(p => [orderId, p.id, p.price, p.quantity]);
 
                             const orderProductSql = `
@@ -115,25 +161,23 @@ function checkout(req, res) {
                     `;
 
                             connection.query(orderProductSql, [orderProducts], (err) => {
-
-                                //errore DB prodotti ordine
                                 if (err) return res.status(500).json(err);
 
-                                // se tutto ok, ritorno successo al client con dati ordine
-                                res.json({
-                                    success: true,
-                                    order: {
-                                        id: orderId,
-                                        shippingData,
-                                        billingData,
-                                        products,
-                                        shipping_price,
-                                        discount_code,
-                                        discountAmount,
-                                        totalAmount
-                                    }
-                                });
+                                const orderResponse = {
+                                    id: orderId,
+                                    shippingData,
+                                    billingData,
+                                    products,
+                                    shipping_price,
+                                    discount_code,
+                                    discountAmount,
+                                    totalAmount
+                                };
 
+                                res.json({ success: true, order: orderResponse });
+
+                                // INVIO EMAIL IN BACKGROUND con funzione separata
+                                sendOrderEmails(orderId, totalAmount, products, shippingData);
                             });
 
                         });
@@ -149,23 +193,19 @@ function checkout(req, res) {
 
                         connection.query(discountSql, [discount_code], (err, result) => {
 
-                            //errore DB sconto
                             if (err) return res.status(500).json(err);
 
-                            //se codice valido aggiorniamo id e amount dello sconto
                             if (result.length > 0) {
                                 discountId = result[0].id;
                                 discountAmount = result[0].percentage;
                             }
 
-                            //creaimo ordine dopo aver gestito sconto
                             createOrder();
 
                         });
 
                     } else {
 
-                        //se nessun codice sconto, creiamo subito l'ordine
                         createOrder();
 
                     }
